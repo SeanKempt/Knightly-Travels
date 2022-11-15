@@ -16,49 +16,73 @@ const createBoard = (num = 8) => {
   return { getBoardSquares };
 };
 
-const createKnight = (currentPosition = [0, 0]) => {
-  //available moves that the night can make based on the current position on the board.
-  let availableMoves = [];
-  //generates the available moves that the knight can make based on the current position on the board. current position is an array
+const pos = (x = 0, y = 0, dist = 0) => {
+  return { x, y, dist };
+};
+
+const isValid = (x, y) => {
+  if (x >= 0 && y >= 0 && x <= 7 && y <= 7) {
+    return true;
+  } else {
+    return false;
+  }
+};
+const createKnight = (position = currentPosition) => {
   const generateMoves = (position = knight.getCurrentPosition()) => {
-    const validPosition = (element) => element < 0 || element > 7;
-    if (position.find(validPosition)) {
-      return `Not a valid position`;
-    } else {
-      const x = position[0];
-      const y = position[1];
-      availableMoves.push([x + 2, y - 1]);
-      availableMoves.push([x + 2, y + 1]);
-      availableMoves.push([x - 2, y + 1]);
-      availableMoves.push([x - 2, y - 1]);
-      availableMoves.push([x + 1, y - 2]);
-      availableMoves.push([x - 1, y - 2]);
-      availableMoves.push([x - 1, y + 2]);
-      availableMoves.push([x + 1, y + 2]);
+    let availableMoves = [];
+    let x = position.x;
+    let y = position.y;
+    for (let i = 0; i < 7; i++) {
+      let newX = x + row[i];
+      let newY = y + col[i];
+      if (isValid(newX, newY) === true) availableMoves.push(newX, newY);
     }
-    availableMoves = availableMoves.filter(
-      (element) =>
-        element[0] > 0 && element[0] < 7 && element[1] > 0 && element[1] < 7
-    );
     return availableMoves;
   };
 
-  const getCurrentPosition = () => currentPosition;
+  const shortestPath = (dest, current = knight.getCurrentPosition()) => {
+    const queue = [];
+    const visited = [];
+    queue.push(current);
+
+    while (queue.length > 0) {
+      let node = queue.shift();
+      let x = node.x;
+      let y = node.y;
+      let dist = node.dist;
+      if (x === dest.x && y === dest.y) {
+        return dist;
+      }
+
+      if (!visited.find((element) => element === node)) {
+        visited.push(node);
+        for (let i = 0; i <= 7; i++) {
+          let x1 = x + row[i];
+          let y1 = y + col[i];
+          if (isValid(x1, y1)) queue.push(pos(x1, y1, dist + 1));
+        }
+      }
+    }
+  };
+
+  const getCurrentPosition = () => position;
 
   const getAvailableMoves = () => availableMoves;
-  return { generateMoves, getCurrentPosition, getAvailableMoves };
+
+  return {
+    generateMoves,
+    getCurrentPosition,
+    getAvailableMoves,
+    shortestPath,
+  };
 };
 
+const destination = pos(5, 6);
+const currentPosition = pos();
+const row = [2, 2, -2, -2, 1, 1, -1, -1];
+const col = [-1, 1, 1, -1, 2, -2, 2, -2];
 const chessBoard = createBoard();
 const knight = createKnight();
-console.log(chessBoard);
-console.log(knight);
-
-//given a starting position on the chess board x, y
-//generate available moves from that position for the knight chess piece
-//x + 2 & y + 1 or x - 2 & y - 1 to find the available moves
-//if x < 0 or y < 0 then it is not an available move
-//if x > 7 or y > 7 then it is not an available move
 
 //might think of starting point as the root of the tree and then available moves from that starting point as childen in the tree.
 //then will be able to compare x to other x values in tree to try and find the shortest path to the square that you would want to move to. or y in this example.
