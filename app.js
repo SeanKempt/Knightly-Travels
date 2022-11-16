@@ -43,6 +43,7 @@ const createKnight = (position = currentPosition) => {
   const shortestPath = (dest, current = knight.getCurrentPosition()) => {
     const queue = [];
     const visited = [];
+    const path = [];
     queue.push(current);
 
     while (queue.length > 0) {
@@ -51,6 +52,7 @@ const createKnight = (position = currentPosition) => {
       let y = node.y;
       let dist = node.dist;
       if (x === dest.x && y === dest.y) {
+        console.log(visited);
         return dist;
       }
 
@@ -59,7 +61,10 @@ const createKnight = (position = currentPosition) => {
         for (let i = 0; i <= 7; i++) {
           let x1 = x + row[i];
           let y1 = y + col[i];
-          if (isValid(x1, y1)) queue.push(pos(x1, y1, dist + 1));
+          if (isValid(x1, y1)) {
+            path.push(pos(x1, y1, dist + 1));
+            queue.push(pos(x1, y1, dist + 1));
+          }
         }
       }
     }
@@ -77,8 +82,8 @@ const createKnight = (position = currentPosition) => {
   };
 };
 
-const destination = pos(5, 6);
-const currentPosition = pos();
+const destination = pos(5, 5);
+const currentPosition = pos(2, 1);
 const row = [2, 2, -2, -2, 1, 1, -1, -1];
 const col = [-1, 1, 1, -1, 2, -2, 2, -2];
 const chessBoard = createBoard();
